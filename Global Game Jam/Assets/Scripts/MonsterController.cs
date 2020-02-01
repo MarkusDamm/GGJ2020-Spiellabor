@@ -10,8 +10,8 @@ public class MonsterController : MonoBehaviour
     private string device;
     AudioClip clipRecord;
     readonly int sampleWindow = 128;
-    bool isInitialized;
-    bool isActive;
+    bool isInitialized; // Microphone
+    bool isActive;  //KI
     // possible targets
     public Transform player;
     //public Transform[] targets;
@@ -44,7 +44,7 @@ public class MonsterController : MonoBehaviour
         //add by tw
         audioSource = GetComponent<AudioSource>();
         //add by tw end
-        palyer = GameObject.Find("Player").transform;
+        player = GameObject.Find("Player").transform;
     }
 
     // Update is called once per frame
@@ -54,36 +54,7 @@ public class MonsterController : MonoBehaviour
         var playerHeading = player.position - this.transform.position;
         var playerDistance = playerHeading.magnitude;
 
-        if (isActive == false)
-        {
-            Ray ray = new Ray(this.transform.position, playerHeading);
-            Physics.Raycast(ray, out RaycastHit hitinfo);
-            Debug.DrawRay(ray.origin, 10 * ray.direction, Color.magenta);
-            string name = hitinfo.collider.tag;
-            //Debug.Log(name + " " + System.DateTime.Now);
-            bool seen = (name == "Player");
-
-            if (playerDistance <= 8.0f && seen == true)
-            {
-                Debug.Log("Initalize Monster AI");
-                //waiting for shouting
-                if (isMonsterShouted == false)
-                {
-                    audioSource.PlayOneShot(shoutingClip);
-                    isMonsterShouted = true;
-                }
-            }
-
-            if (isMonsterShouted == true && audioSource.isPlaying == false)
-            {
-                isActive = true;
-                isFollowingPlayer = true;
-                agent.SetDestination(current.position);
-            }
-            return;
-        }
-
-        if (isActive == true)
+        if (isActive)
         {
             if (agent.CalculatePath(this.current.position, new NavMeshPath()))   // if there's no path to target -> get another target
             {
@@ -96,7 +67,6 @@ public class MonsterController : MonoBehaviour
 
             // for distance between Monster and current target
             var distance = (current.position - this.transform.position).magnitude;
-
 
             // MouseInput for testing. 
             // Proplem: the same script on more than 1 Object only works for the first object
@@ -147,8 +117,9 @@ public class MonsterController : MonoBehaviour
             if (isFollowingPlayer && playerDistance <= killRange)
             {
                 Debug.Log("Too close, end please!");
-                // new WaitForSecondsRealtime(3);
-                // SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex, LoadSceneMode.Single);
+
+                player.GetComponent<PlayerController>().StartQTE();
+                // Start QTE
             }
         }
     }
@@ -164,7 +135,7 @@ public class MonsterController : MonoBehaviour
     {
         int num = Random.Range(0, targets.Count - 1);
         current = targets[num];
-        transform.LookAt(target);
+        transform.LookAt(current);
         new WaitForSecondsRealtime(1);
         agent.SetDestination(current.position);
         Debug.Log(current.name);
@@ -243,17 +214,10 @@ public class MonsterController : MonoBehaviour
         }
     }
 
-    private void OnCollisionEnter(Collision col)
+    public void ActivateMonster()
     {
-
+        isActive = true;
+        // Play Alien Sound? 
     }
-
-    // private void MonsterHit()
-    // {
-    //     CancelInvoke("SwitchFollowing");
-    //     enabled = false;    //stops update function from beeing called
-    //     new WaitForSecondsRealtime(3);  //wait 3 seconds
-    //     enabled = true;
-    // }
 
 }

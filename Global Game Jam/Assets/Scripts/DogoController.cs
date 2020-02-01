@@ -7,9 +7,11 @@ public class DogoController : MonoBehaviour
     public NavMeshAgent agent;
     public GameObject player;
     float playerDistance;
+    public List<GameObject> objectsCarrying;
     readonly float distanceForFollow = 3.0f;
     private void Awake()
     {
+
         agent.stoppingDistance = distanceForFollow;
     }
 
@@ -38,6 +40,12 @@ public class DogoController : MonoBehaviour
         //Debug.Log(playerDistance);
     }
 
+    public void TakeObject(GameObject takenObject)
+    {
+        takenObject.transform.SetParent(this.transform);
+        takenObject.transform.localPosition = new Vector3(0, 0.5f, 0);
+        takenObject.transform.localRotation = Quaternion.Euler(90f, 0, 0);
+    }
     
 
 }
