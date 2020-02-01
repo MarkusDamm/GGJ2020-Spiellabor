@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.AI;
 using System.Collections.Generic;
-using UnityEngine.SceneManagement;
+//using UnityEngine.SceneManagement; // Fürs neuladen der Scene
 
 public class MonsterController : MonoBehaviour
 {
@@ -50,23 +50,24 @@ public class MonsterController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // for disctance between Monster and player
-        var playerHeading = player.position - this.transform.position;
-        var playerDistance = playerHeading.magnitude;
-
         if (isActive)
         {
+            // for disctance between Monster and player
+            var playerHeading = player.position - this.transform.position;
+            var playerDistance = playerHeading.magnitude;
+
             if (agent.CalculatePath(this.current.position, new NavMeshPath()))   // if there's no path to target -> get another target
             {
                 SwitchFollowing();
             }
             else agent.SetDestination(current.position);
+
             // levelMax equals to the highest normalized value power 2, a small number because < 1
             // pass the value to a static var so we can access it from anywhere
             MicLoudness = LevelMax();
 
             // for distance between Monster and current target
-            var distance = (current.position - this.transform.position).magnitude;
+            var distance = (current.position - transform.position).magnitude;
 
             // MouseInput for testing. 
             // Proplem: the same script on more than 1 Object only works for the first object
@@ -90,12 +91,12 @@ public class MonsterController : MonoBehaviour
             }
             //Debug.Log(playerAngle);
 
-            float playerAngle = Vector3.Angle(playerHeading, this.transform.forward);
+            float playerAngle = Vector3.Angle(playerHeading, transform.forward);
             if (playerAngle <= 35.0f && playerDistance <= 8.0f)
             {
                 //Debug.Log("Player in angle and range");
 
-                Ray ray = new Ray(this.transform.position, playerHeading);
+                Ray ray = new Ray(transform.position, playerHeading);
                 Physics.Raycast(ray, out RaycastHit hitinfo);
                 Debug.DrawRay(ray.origin, 10 * ray.direction, Color.magenta);
                 string name = hitinfo.collider.gameObject.tag;

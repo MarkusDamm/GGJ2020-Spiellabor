@@ -11,7 +11,6 @@ public class DogoController : MonoBehaviour
     readonly float distanceForFollow = 3.0f;
     private void Awake()
     {
-
         agent.stoppingDistance = distanceForFollow;
     }
 

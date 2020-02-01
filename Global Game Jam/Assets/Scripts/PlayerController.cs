@@ -55,6 +55,8 @@ public class PlayerController : MonoBehaviour
 
         if (waitingForKey) CheckQTE();
 
+        // For Testing, delete later
+        if (Input.GetButtonDown("Fire2")) StartQTE();
     }
 
     private void Interact()
@@ -112,17 +114,17 @@ public class PlayerController : MonoBehaviour
         {
             waitingForKey = true;
 
-            if (carying.GetComponent<ItemInfo>().isWeapon)
-            {
-                keyToPress = keys[Random.Range(1, 4)];
-                displayBox.GetComponent<Text>().text = keyToPress;
+            //if (carying.GetComponent<ItemInfo>().isWeapon)
+            //{
+                keyToPress = keys[Random.Range(0, 3)];
+                //displayBox.GetComponent<Text>().text = keyToPress;
                 Debug.Log(keyToPress);
                 Invoke("HandleQTEFail", 1.5f);
-            }
-            else
-            {
-                // GameOver
-            }
+            //}
+            //else
+            //{
+            //    // GameOver
+            //}
         }
     }
 
@@ -130,13 +132,18 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.anyKeyDown)
         {
-            if (Input.GetKeyDown(keyToPress + "Key")) //right Key
-            {
-                CancelInvoke("HandleQTEFail");
+            waitingForKey = false;
 
+            if (Input.GetButtonDown(keyToPress + "Key")) //right Key
+            {
+                Debug.Log("You win!");
+                CancelInvoke("HandleQTEFail");
+                // Play counter animation
+                
             }
             else
             {
+                CancelInvoke("HandleQTEFail");
                 HandleQTEFail();
             }
         }
