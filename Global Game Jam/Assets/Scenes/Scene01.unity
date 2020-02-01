@@ -901,6 +901,8 @@ MonoBehaviour:
   speed: 7
   lookingSpeed: 5
   yRange: 70
+  displayBox: {fileID: 0}
+  dogo: {fileID: 1555755648}
 --- !u!143 &2133653163
 CharacterController:
   m_ObjectHideFlags: 0
