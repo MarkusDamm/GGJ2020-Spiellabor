@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
@@ -12,7 +13,12 @@ public class PlayerController : MonoBehaviour
     float verticalRotation = 0f;
     public float yRange = 60f;
 
-    GameObject dogo;
+    public GameObject displayBox;
+    readonly string[] keys = {"E", "R", "T" };
+    private string keyToPress;
+    private bool waitingForKey = false;
+
+    public GameObject dogo;
     GameObject carying;
 
     // Start is called before the first frame update
@@ -45,7 +51,10 @@ public class PlayerController : MonoBehaviour
         cc.SimpleMove(movement);
 
         if (Input.GetButtonDown("Interact"))    Interact();
-        if (Input.GetButtonDown("Fire1") && carying.tag == "Weapon") Shoot();
+        if (Input.GetButtonDown("Fire1") && carying.tag == "Weapon") Attack();
+
+        if (waitingForKey) CheckQTE();
+
     }
 
     private void Interact()
@@ -72,7 +81,7 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        else if (lookingAt.tag == "Item" || lookingAt.tag == "Weapon" && !carying)
+        else if (lookingAt.CompareTag("Item") || lookingAt.CompareTag("Weapon") && !carying)
         {
             carying = lookingAt;
             lookingAt.transform.SetParent(this.transform);
@@ -83,7 +92,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void Shoot()
+    private void Attack()
     {
         //int ammo = carying.GetComponent<WeaponScript>().ammonition;
         //if (ammo > 0)
@@ -99,13 +108,42 @@ public class PlayerController : MonoBehaviour
 
     public void StartQTE()
     {
-        if (carying)
+        if (!waitingForKey)
         {
+            waitingForKey = true;
 
+            if (carying.GetComponent<ItemInfo>().isWeapon)
+            {
+                keyToPress = keys[Random.Range(1, 4)];
+                displayBox.GetComponent<Text>().text = keyToPress;
+                Debug.Log(keyToPress);
+                Invoke("HandleQTEFail", 1.5f);
+            }
+            else
+            {
+                // GameOver
+            }
         }
-        else
+    }
+
+    private void CheckQTE()
+    {
+        if (Input.anyKeyDown)
         {
-            // GameOver
+            if (Input.GetKeyDown(keyToPress + "Key")) //right Key
+            {
+                CancelInvoke("HandleQTEFail");
+
+            }
+            else
+            {
+                HandleQTEFail();
+            }
         }
+    }
+
+    private void HandleQTEFail()
+    {
+        Debug.Log("FAILED! You died!");
     }
 }

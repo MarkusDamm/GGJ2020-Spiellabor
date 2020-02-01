@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class ItemInfo : MonoBehaviour
 {
+
+    public bool isWeapon;
+
     // Start is called before the first frame update
     void Start()
     {
