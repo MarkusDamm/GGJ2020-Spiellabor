@@ -19,12 +19,12 @@ public class DoorController : MonoBehaviour
     {
         if (openState == 1)
         {
-            transform.position = new Vector3(startPosition.x, transform.position.y + 0.03f, startPosition.z);
-            if (transform.position.y >= startPosition.y + 3f) openState = 0;
+            transform.position = new Vector3(startPosition.x, transform.position.y + 0.02f, startPosition.z);
+            if (transform.position.y >= startPosition.y + 1.5f) openState = 0;
         } 
         else if (openState == 2)
         {
-            transform.position = new Vector3(startPosition.x, transform.position.y - 0.03f, startPosition.z);
+            transform.position = new Vector3(startPosition.x, transform.position.y - 0.02f, startPosition.z);
             if (transform.position.y <= startPosition.y) openState = 0;
         }
     }
