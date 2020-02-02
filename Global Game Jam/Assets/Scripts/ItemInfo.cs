@@ -4,9 +4,8 @@ using UnityEngine;
 
 public class ItemInfo : MonoBehaviour
 {
-
-    public bool isWeapon;
-
+    public enum ItemTypes { Weapon, Ration, EnginePart, LifeSystem }
+    public ItemTypes itemType;
     // Start is called before the first frame update
     void Start()
     {

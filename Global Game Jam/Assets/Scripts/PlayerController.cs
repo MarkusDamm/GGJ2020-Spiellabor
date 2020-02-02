@@ -18,6 +18,7 @@ public class PlayerController : MonoBehaviour
     private string keyToPress;
     private bool waitingForKey = false;
 
+    private MonsterController attackedBy;
     public Animator animator;
     public Transform attackPoint;
     public float attackRange = 0.5f;
@@ -56,12 +57,12 @@ public class PlayerController : MonoBehaviour
         cc.SimpleMove(movement);
 
         if (Input.GetButtonDown("Interact"))    Interact();
-        if (Input.GetButtonDown("Fire1") && carying.tag == "Weapon") Attack();
+        if (Input.GetButtonDown("Fire1") && carying.GetComponent<ItemInfo>().itemType.ToString() == "Weapon" ) Attack();
 
         if (waitingForKey) CheckQTE();
 
         // RMB for testing, delete later
-        if (Input.GetButtonDown("Fire2")) StartQTE();
+        //if (Input.GetButtonDown("Fire2")) StartQTE();
     }
 
     private void Interact()
@@ -95,6 +96,7 @@ public class PlayerController : MonoBehaviour
             lookingAt.transform.localPosition = new Vector3(0, 0, 0.5f);
             lookingAt.transform.localRotation = Quaternion.Euler(45f, 0, 0);
             lookingAt.transform.localScale = new Vector3(1 / transform.lossyScale.x, 1 / transform.lossyScale.y, 1 / transform.lossyScale.z);
+            lookingAt.layer = 9;
             // Pick-Up animation
             //Destroy(lookingAt);
         }
@@ -121,23 +123,25 @@ public class PlayerController : MonoBehaviour
         Gizmos.DrawSphere(attackPoint.position, attackRange);
     }
 
-    public void StartQTE()
+    public void StartQTE(MonsterController monster)
     {
+        attackedBy = monster;
         if (!waitingForKey)
         {
             waitingForKey = true;
 
-            //if (carying.GetComponent<ItemInfo>().isWeapon)
-            //{
-                keyToPress = keys[Random.Range(0, 3)];
+            if (carying.GetComponent<ItemInfo>().itemType.ToString() == "Weapon")
+            {
+                int num = Random.Range(0, 3);
+                keyToPress = keys[num];
                 //displayBox.GetComponent<Text>().text = keyToPress;
-                Debug.Log(keyToPress);
-                Invoke("HandleQTEFail", 1.5f);
-            //}
-            //else
-            //{
-            //    // GameOver
-            //}
+                Debug.Log(num + "  Press " + keyToPress);
+                Invoke("HandleQTEFail", 2f);
+            }
+            else
+            {
+                // GameOver
+            }
         }
     }
 
@@ -150,6 +154,8 @@ public class PlayerController : MonoBehaviour
             if (Input.GetButtonDown(keyToPress + "Key")) //right Key
             {
                 Debug.Log("You win!");
+                attackedBy.RunAway(transform);
+                attackedBy = null;
                 CancelInvoke("HandleQTEFail");
                 // Play counter animation
                 

@@ -20,7 +20,7 @@ public class MonsterController : MonoBehaviour
     // random number for targets
     bool isFollowingPlayer;
     bool isMonsterShouted = false;
-    readonly float killRange = 1f;
+    readonly float killRange = 1.5f;
 
     //add by tw
     AudioSource audioSource;
@@ -56,7 +56,7 @@ public class MonsterController : MonoBehaviour
             var playerHeading = player.position - this.transform.position;
             var playerDistance = playerHeading.magnitude;
 
-            if (agent.CalculatePath(this.current.position, new NavMeshPath()))   // if there's no path to target -> get another target
+            if (!agent.CalculatePath(this.current.position, new NavMeshPath()))   // if there's no path to target -> get another target
             {
                 SwitchFollowing();
             }
@@ -72,35 +72,37 @@ public class MonsterController : MonoBehaviour
             // MouseInput for testing. 
             // Proplem: the same script on more than 1 Object only works for the first object
             // Seems like the 2nd object can't access the microphone
-            if (!isFollowingPlayer && (MicLoudness * 2 >= 0.01f || Input.GetMouseButtonDown(0)))
+            //if (!isFollowingPlayer && (MicLoudness * 2 >= 0.01f || Input.GetMouseButtonDown(0)))
+            //{
+            //    isFollowingPlayer = true;
+            //    current = player;
+            //    Debug.Log(MicLoudness);
+            //    // Move towards target position
+            //    agent.SetDestination(current.position);
+            //    agent.speed = 1.5f + MicLoudness * 50.0f;
+            //    if (IsInvoking("SwitchFollowing"))
+            //        CancelInvoke("SwitchFollowing");
+            //    Invoke("SwitchFollowing", 5.0f);
+            //}
+            if (distance < 1.0f && !isFollowingPlayer)
             {
-                isFollowingPlayer = true;
-                current = player;
-                Debug.Log(MicLoudness);
-                // Move towards target position
-                agent.SetDestination(current.position);
-                agent.speed = 1.5f + MicLoudness * 50.0f;
-                if (IsInvoking("SwitchFollowing"))
-                    CancelInvoke("SwitchFollowing");
-                Invoke("SwitchFollowing", 5.0f);
-            }
-            else if (distance < 1.0f && !isFollowingPlayer)
-            {
-                new WaitForSecondsRealtime(2);
+                new WaitForSeconds(2);
                 ChooseTarget();
             }
-            //Debug.Log(playerAngle);
 
             float playerAngle = Vector3.Angle(playerHeading, transform.forward);
-            if (playerAngle <= 35.0f && playerDistance <= 8.0f)
+            Debug.DrawRay(transform.position, 10 * playerHeading, Color.white);
+
+            if (playerAngle <= 50.0f && playerDistance <= 8.0f)
             {
                 //Debug.Log("Player in angle and range");
 
                 Ray ray = new Ray(transform.position, playerHeading);
                 Physics.Raycast(ray, out RaycastHit hitinfo);
                 Debug.DrawRay(ray.origin, 10 * ray.direction, Color.magenta);
-                string name = hitinfo.collider.gameObject.tag;
-                bool seen = (name == "Player" && playerAngle < 30);
+                int hitLayer = hitinfo.collider.gameObject.layer;
+                //Debug.Log(hitinfo.collider.gameObject.layer);
+                bool seen = (hitLayer == 9 && playerAngle < 30);    // Layer 9 == Player
                 if (seen)
                 {
                     //Debug.Log("I see you " + seen);
@@ -117,9 +119,7 @@ public class MonsterController : MonoBehaviour
             }
             if (isFollowingPlayer && playerDistance <= killRange)
             {
-                Debug.Log("Too close, end please!");
-
-                player.GetComponent<PlayerController>().StartQTE();
+                player.GetComponent<PlayerController>().StartQTE(this);
                 // Start QTE
             }
         }
@@ -129,12 +129,13 @@ public class MonsterController : MonoBehaviour
     {
         isFollowingPlayer = false;
         ChooseTarget();
+        Debug.Log("Switch Following");
         agent.speed = 2;
     }
 
     private void ChooseTarget()
     {
-        int num = Random.Range(0, targets.Count - 1);
+        int num = Random.Range(0, targets.Count);
         current = targets[num];
         transform.LookAt(current);
         new WaitForSecondsRealtime(1);
@@ -227,7 +228,7 @@ public class MonsterController : MonoBehaviour
     public void ActivateMonster()
     {
         isActive = true;
-        current = targets[Random.Range(1, targets.Capacity)];
+        SwitchFollowing();
         // Play Alien Sound? 
     }
 
