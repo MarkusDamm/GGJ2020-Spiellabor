@@ -18,6 +18,11 @@ public class PlayerController : MonoBehaviour
     private string keyToPress;
     private bool waitingForKey = false;
 
+    public Animator animator;
+    public Transform attackPoint;
+    public float attackRange = 0.5f;
+    public LayerMask enemyLayers;
+
     public GameObject dogo;
     GameObject carying;
 
@@ -55,7 +60,7 @@ public class PlayerController : MonoBehaviour
 
         if (waitingForKey) CheckQTE();
 
-        // For Testing, delete later
+        // RMB for testing, delete later
         if (Input.GetButtonDown("Fire2")) StartQTE();
     }
 
@@ -83,12 +88,13 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        else if (lookingAt.CompareTag("Item") || lookingAt.CompareTag("Weapon") && !carying)
+        else if (lookingAt.CompareTag("Item") || lookingAt.CompareTag("Weapon") && !carying && (lookingAt.transform.position - transform.position).magnitude <= 1.5f)
         {
             carying = lookingAt;
             lookingAt.transform.SetParent(this.transform);
             lookingAt.transform.localPosition = new Vector3(0, 0, 0.5f);
             lookingAt.transform.localRotation = Quaternion.Euler(45f, 0, 0);
+            lookingAt.transform.localScale = new Vector3(1 / transform.lossyScale.x, 1 / transform.lossyScale.y, 1 / transform.lossyScale.z);
             // Pick-Up animation
             //Destroy(lookingAt);
         }
@@ -96,16 +102,23 @@ public class PlayerController : MonoBehaviour
 
     private void Attack()
     {
-        //int ammo = carying.GetComponent<WeaponScript>().ammonition;
-        //if (ammo > 0)
-        //{
-        //    carying.GetComponent<WeaponScript>().ammonition--;
+        // Play attack animation (Unity parameter für die animation setzen und als Bedingung (Condition) festlegen)
+        animator.SetTrigger("Attack");
+        // Check for hit
+        Collider[] hitEnemies = Physics.OverlapSphere(attackPoint.position, attackRange, enemyLayers);
+        // Alien react
+        foreach(Collider enemy in hitEnemies)
+        {
+            Debug.Log("Enemy hit " + enemy);
+            enemy.GetComponent<MonsterController>().RunAway(transform);
+        }
+    }
 
-        //}
-        //else
-        //{
-        //    // Play Click sound
-        //}
+    private void OnDrawGizmosSelected()
+    {
+        if (attackPoint == null) return;
+
+        Gizmos.DrawSphere(attackPoint.position, attackRange);
     }
 
     public void StartQTE()
