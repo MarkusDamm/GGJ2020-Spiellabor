@@ -4,9 +4,12 @@ using UnityEngine;
 
 public class DoorController : MonoBehaviour
 {
-    // Start is called before the first frame update
     private Vector3 startPosition;
+    public string neededKey = "";
     int openState = 0;
+
+
+    // Start is called before the first frame update
     void Start()
     {
         startPosition = transform.position;
@@ -29,11 +32,29 @@ public class DoorController : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         Debug.Log("Collider detected: " + other.name);
-        if (other.CompareTag("Player") && openState == 0)
+        if (neededKey == "")
         {
-            openState = 1;
-            // play Sound
-            Invoke("CloseDoor", 7);
+            if (other.CompareTag("Player") && openState == 0)
+            {
+                openState = 1;
+                // play Sound
+                Invoke("CloseDoor", 7);
+            }
+        }
+        else 
+        {
+            if (other.CompareTag("Player") && openState == 0)
+            {
+                string[] keyCards = other.GetComponent<PlayerController>().doorKeys;
+                foreach (string key in keyCards)
+                {
+                    if (key == neededKey)
+                    {
+                        openState = 1;
+                        Invoke("CloseDoor", 7);
+                    }
+                }
+            }
         }
     }
 

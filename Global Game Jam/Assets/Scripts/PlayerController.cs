@@ -18,6 +18,8 @@ public class PlayerController : MonoBehaviour
     private string keyToPress;
     private bool waitingForKey = false;
 
+    public string[] doorKeys = { };
+
     private MonsterController attackedBy;
     public Animator animator;
     public Transform attackPoint;
@@ -68,37 +70,51 @@ public class PlayerController : MonoBehaviour
     private void Interact()
     {
         Ray ray = new Ray(cam.transform.position, cam.transform.forward);
-
         Physics.Raycast(ray, out RaycastHit hitinfo);
+
         if (!hitinfo.collider) return;
+        
         GameObject lookingAt = hitinfo.collider.gameObject;
-        if (lookingAt == dogo)
+        
+        if (lookingAt.layer == 10)
         {
             Debug.Log("Looking at dogo");
             if (carying)
             {
-                dogo.GetComponent<DogoController>().TakeObject(carying);
+                lookingAt.GetComponent<DogoController>().TakeObject(carying);
                 
                 carying = null;
                 // place Item on Dogo
             }
-            else if ( lookingAt.GetComponent<DogoController>().objectsCarrying.Count > 0 && lookingAt.name != "Dogo" )
+            else if (lookingAt.CompareTag("Item") && lookingAt.name != "Dogo" )
             {
+                Debug.Log("Dogos Item");
                 carying = lookingAt;
-                lookingAt.GetComponent<DogoController>().objectsCarrying.Remove(lookingAt);
+                lookingAt.transform.SetParent(transform);
+                lookingAt.transform.localPosition = new Vector3(0, 0, 0.5f);
+                lookingAt.transform.localRotation = Quaternion.Euler(45f, 0, 0);
+                lookingAt.transform.localScale = new Vector3(1 / transform.lossyScale.x, 1 / transform.lossyScale.y, 1 / transform.lossyScale.z);
+                lookingAt.layer = 9;
+                lookingAt.GetComponent<DogoController>().objectsCarrying.Remove(hitinfo.collider.gameObject);
             }
         }
 
-        else if (lookingAt.CompareTag("Item") || lookingAt.CompareTag("Weapon") && !carying && (lookingAt.transform.position - transform.position).magnitude <= 1.5f)
+        else if ((lookingAt.CompareTag("Item") || lookingAt.CompareTag("Weapon")) && !carying && (lookingAt.transform.position - transform.position).magnitude <= 3f)
         {
             carying = lookingAt;
-            lookingAt.transform.SetParent(this.transform);
+            lookingAt.transform.SetParent(transform);
             lookingAt.transform.localPosition = new Vector3(0, 0, 0.5f);
             lookingAt.transform.localRotation = Quaternion.Euler(45f, 0, 0);
             lookingAt.transform.localScale = new Vector3(1 / transform.lossyScale.x, 1 / transform.lossyScale.y, 1 / transform.lossyScale.z);
             lookingAt.layer = 9;
             // Pick-Up animation
             //Destroy(lookingAt);
+        }
+
+        else if (lookingAt.CompareTag("Key") && (lookingAt.transform.position - transform.position).magnitude <= 3f)
+        {
+            doorKeys[doorKeys.Length + 1] = lookingAt.name;
+            Destroy(lookingAt);
         }
     }
 

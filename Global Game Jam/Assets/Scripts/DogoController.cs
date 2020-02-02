@@ -14,6 +14,16 @@ public class DogoController : MonoBehaviour
         agent.stoppingDistance = distanceForFollow;
     }
 
+    private void Start()
+    {
+        NavMeshHit closestHit;
+
+        if (NavMesh.SamplePosition(gameObject.transform.position, out closestHit, 500f, NavMesh.AllAreas))
+            gameObject.transform.position = closestHit.position;
+        else
+            Debug.LogError("Could not find position on NavMesh!");
+    }
+
     private void Update()
     {
         //Debug.Log(gameObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).IsName("walking"));
@@ -41,11 +51,14 @@ public class DogoController : MonoBehaviour
 
     public void TakeObject(GameObject takenObject)
     {
-        takenObject.transform.SetParent(this.transform);
-        takenObject.transform.localPosition = new Vector3(0, 0.5f, 0);
+        objectsCarrying.Add(takenObject);
+
+        takenObject.transform.SetParent(transform);
+
+        takenObject.transform.localPosition = new Vector3( Mathf.Pow(-1f, objectsCarrying.Count) * 1 , 0.5f, 0);
         takenObject.transform.localRotation = Quaternion.Euler(90f, 0, 0);
         takenObject.transform.localScale = new Vector3(1 / transform.lossyScale.x, 1 / transform.lossyScale.y, 1 / transform.lossyScale.z);
-        takenObject.layer = 0;
+        takenObject.layer = 10;
     }
     
 
