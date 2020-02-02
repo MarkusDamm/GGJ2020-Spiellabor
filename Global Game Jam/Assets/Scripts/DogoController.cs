@@ -44,6 +44,7 @@ public class DogoController : MonoBehaviour
         takenObject.transform.SetParent(this.transform);
         takenObject.transform.localPosition = new Vector3(0, 0.5f, 0);
         takenObject.transform.localRotation = Quaternion.Euler(90f, 0, 0);
+        takenObject.transform.localScale = new Vector3(1 / transform.lossyScale.x, 1 / transform.lossyScale.y, 1 / transform.lossyScale.z);
     }
     
 

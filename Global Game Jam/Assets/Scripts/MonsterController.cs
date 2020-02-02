@@ -143,6 +143,15 @@ public class MonsterController : MonoBehaviour
         // Das letzt Element scheint verbuggt zu sein
     }
 
+    public void RunAway(Transform attacker)
+    {
+
+        agent.SetDestination(new Vector3((transform.position.x - attacker.position.x) * 2f + transform.position.x, transform.position.y, (transform.position.z - attacker.position.z) * 3f + transform.position.z));
+        isActive = false;
+        Invoke("ActivateMonster", 4f);
+
+    }
+
     private void InitMic()
     {
         if (device == null) device = Microphone.devices[0];
@@ -218,6 +227,7 @@ public class MonsterController : MonoBehaviour
     public void ActivateMonster()
     {
         isActive = true;
+        current = targets[Random.Range(1, targets.Capacity)];
         // Play Alien Sound? 
     }
 
